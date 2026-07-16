@@ -91,10 +91,12 @@ jobs:
 
           # Check what a normal subprocess call gets:
           emulated_arch = subprocess.run("echo %PROCESSOR_ARCHITECTURE%", shell=True, capture_output=True, text=True).stdout.strip()
-          print(f"Standard subprocess reports: {emulated_arch}")
+          print(f"Standard CMD reports: {emulated_arch}")
+          emulated_arch = subprocess.run("powershell -Command $Env:PROCESSOR_ARCHITECTURE", shell=True, capture_output=True, text=True).stdout.strip()
+          print(f"Standard powershell reports: {emulated_arch}")
 
           # Check what our native wrapper gets (escape variable to prevent parent CMD from processing that one)
-          native_result = run_native_arm64("echo ^%PROCESSOR_ARCHITECTURE^%", capture_output=True)
+          native_result = run_native_arm64("powershell -Command $Env:PROCESSOR_ARCHITECTURE", capture_output=True)
           native_arch = native_result.stdout.strip()
           print(f"Native wrapper reports: {native_arch}")
 
