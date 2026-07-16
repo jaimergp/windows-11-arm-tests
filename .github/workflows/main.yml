@@ -57,10 +57,10 @@ jobs:
           echo "ARM CMD via x64 Python + intermediate arm64 python:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'powershell -Command [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture\'])'])"
 
-      - name: Experiment with start
+      - name: Experiment with start (python amd64)
         shell: bash -el {0}
         run: |
-          python - <<EOF
+          ./python-amd64/python - <<EOF
           import subprocess
           import sys
 
