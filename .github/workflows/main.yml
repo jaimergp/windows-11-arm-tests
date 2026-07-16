@@ -20,6 +20,7 @@ jobs:
         run: |
           echo "ARM CMD:"
           start /b /wait /machine arm64 cmd.exe "echo ^%PROCESSOR_ARCHITECTURE^% > tempfile.txt"
+          timeout /t 5
           cat tempfile.txt
 
       - name: Setup Python
@@ -38,4 +39,5 @@ jobs:
           ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; subprocess.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE%'])"
           echo "ARM CMD via start:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess, os; subprocess.run(['cmd.exe', '/c', 'start /b /wait /machine arm64 cmd.exe /c \"echo ^%PROCESSOR_ARCHITECTURE^% > tempfile2.txt\"'])"
+          sleep 5
           cat tempfile2.txt
