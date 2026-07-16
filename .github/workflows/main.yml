@@ -27,17 +27,19 @@ jobs:
         shell: pwsh
         run: |
           curl -L -o micromamba.exe https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-win-64
-          echo "Create Python env on x64"
-          ./micromamba create -c conda-forge --root-prefix ./.micromamba-root -p ./test-env --platform win-64 python
+          echo "Create Python env for amd64"
+          ./micromamba create -c conda-forge --root-prefix ./.micromamba-root -p ./python-amd64 --platform win-64 python
+          echo "Create Python env for arm64"
+          ./micromamba create -c conda-forge --root-prefix ./.micromamba-root -p ./python-arm64 --platform win-arm64 python
     
       - name: Execute Native ARM64 Test from Emulated Process
         shell: pwsh
         run: |
           echo "Python reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import platform; print(platform.platform(), platform.machine())"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import platform; print(platform.platform(), platform.machine())"
           echo "Naive CMD:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; subprocess.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE%'])"
-          echo "ARM CMD via start:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess, os; subprocess.run(['cmd.exe', '/c', 'start /b /wait /machine arm64 cmd.exe /c \"echo ^%PROCESSOR_ARCHITECTURE^% > tempfile2.txt\"'])"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE%'])"
+          echo "ARM CMD via intermediate arm64 python:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'echo %PROCESSOR_ARCHITECTURE%\'])'])"
           sleep 5
           cat tempfile2.txt
