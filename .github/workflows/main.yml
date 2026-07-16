@@ -104,7 +104,7 @@ jobs:
 
           ci_result = run_native_arm64(ci_command)
 
-          print("Powershell reports:", ci_command.stdout.strip())
+          print("Powershell reports:", ci_result.stdout.strip())
           if ci_result.returncode != 0:
               print(f"CI Step Failed with exit code: {ci_result.returncode}")
               sys.exit(ci_result.returncode)
