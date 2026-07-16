@@ -35,4 +35,4 @@ jobs:
           echo "Naive CMD:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE%'])"
           echo "ARM CMD via intermediate arm64 python:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'echo %PROCESSOR_ARCHITECTURE%\'])'])"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'echo ^%PROCESSOR_ARCHITECTURE^%\'])'])"
