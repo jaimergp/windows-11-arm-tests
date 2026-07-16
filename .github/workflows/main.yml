@@ -16,7 +16,8 @@ jobs:
           echo "Naive CMD:"
           cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
           echo "ARM CMD:"
-          C:\Windows\SysArm32\cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
+          start /b /wait /machine arm64 cmd.exe "echo ^%PROCESSOR_ARCHITECTURE^% > tempfile.txt"
+          cat tempfile.txt
 
       - name: Setup Python
         shell: pwsh
@@ -31,6 +32,7 @@ jobs:
           echo "Python reports:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import platform; print(platform.platform(), platform.machine())"
           echo "Naive CMD:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; subprocess.run(['cmd.exe', 'echo %PROCESSOR_ARCHITECTURE%'])"
-          echo "ARM CMD:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess, os; subprocess.run([os.path.join(os.environ['SystemRoot'], 'SysArm32', 'cmd.exe'), '/C', 'echo %PROCESSOR_ARCHITECTURE%'])"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; subprocess.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE%'])"
+          echo "ARM CMD via start:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess, os; subprocess.run(['cmd.exe', '/c', 'start /b /wait /machine arm64 cmd.exe /c \"echo ^%PROCESSOR_ARCHITECTURE^% > tempfile2.txt\"'])"
+          cat tempfile2.txt
