@@ -15,6 +15,9 @@ jobs:
           echo $env:PROCESSOR_ARCHITECTURE
           echo "Naive CMD:"
           cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
+      - name: Direct CMD shell
+        shell: cmd
+        run: |
           echo "ARM CMD:"
           start /b /wait /machine arm64 cmd.exe "echo ^%PROCESSOR_ARCHITECTURE^% > tempfile.txt"
           cat tempfile.txt
