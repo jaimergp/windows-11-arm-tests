@@ -25,14 +25,32 @@ jobs:
           echo "Create Python env for arm64"
           ./micromamba create -c conda-forge --root-prefix ./.micromamba-root -p ./python-arm64 --platform win-arm64 python
     
-      - name: Execute Native ARM64 Test from Emulated Process
+      - name: Query PROCESSOR_ARCHITECTURE and PROCESSOR_ARCHITEW6432
         shell: pwsh
         run: |
           echo "Python AMD64 reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import platform; print(platform.platform(), platform.machine())"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import platform, os; print('Platform:', platform.platform(), 'PROCESSOR_ARCHITECTURE', os.environ.get('PROCESSOR_ARCHITECTURE', ''), 'PROCESSOR_ARCHITEW6432', os.environ.get('PROCESSOR_ARCHITEW6432', ''))"
           echo "Python ARM64 reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./python-arm64 python -c "import platform; print(platform.platform(), platform.machine())"
-          echo "Naive CMD:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE%'])"
-          echo "ARM CMD via intermediate arm64 python:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'echo ^%PROCESSOR_ARCHITECTURE^%\'])'])"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-arm64 python -c "import platform, os; print('Platform:', platform.platform(), 'PROCESSOR_ARCHITECTURE', os.environ.get('PROCESSOR_ARCHITECTURE', ''), 'PROCESSOR_ARCHITEW6432', os.environ.get('PROCESSOR_ARCHITEW6432', ''))"
+          echo "Naive CMD on amd64:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE% %PROCESSOR_ARCHITEW6432%'])"
+          echo "Naive CMD on arm64:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-arm64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE% %PROCESSOR_ARCHITEW6432%'])"
+          echo "ARM CMD on amd64 via intermediate arm64 python:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'echo ^%PROCESSOR_ARCHITECTURE^%\ ^%PROCESSOR_ARCHITEW6432^%'])'])"
+
+      - name: Query Powershell RuntimeInformation
+        shell: pwsh
+        run: |
+          echo "Direct Powershell"
+          powershell -Command "[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture"
+          echo "Naive Powershell via arm64 Python:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-arm64 python -c "import subprocess as s; s.run(['powershell',  '-Command', '[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture'])"
+          echo "Naive CMD via arm64 Python:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-arm64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'powershell -Command \"[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture\"'])"
+          echo "Naive Powershell via x64 Python:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['powershell',  '-Command', '[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture'])"
+          echo "Naive CMD via x64 Python:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'powershell -Command \"[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture\"'])"
+          echo "ARM CMD via x64 Python + intermediate arm64 python:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'powershell -Command \"[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture\"\'])'])"
