@@ -19,7 +19,7 @@ jobs:
         shell: cmd
         run: |
           echo "ARM CMD:"
-          start /b /wait /machine arm64 cmd.exe "echo ^%PROCESSOR_ARCHITECTURE^% > tempfile.txt"
+          start /b /wait /machine arm64 cmd.exe /c "echo ^%PROCESSOR_ARCHITECTURE^% > tempfile.txt"
           ping 127.0.0.1 -n 6 > nul
           cat tempfile.txt
 
