@@ -54,3 +54,55 @@ jobs:
           ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'powershell -Command [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture'])"
           echo "ARM CMD via x64 Python + intermediate arm64 python:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'powershell -Command [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture\'])'])"
+
+      - name: Experiment with start
+        shell: ./python-amd64/python {0}
+        run: |
+          import subprocess
+          import sys
+          
+          def run_native_arm64(command: str, capture_output: bool = False) -> subprocess.CompletedProcess:
+              """
+              Launches a command inside a native ARM64 CMD environment 
+              from an emulated AMD64 Python process.
+              """
+              # Force execution of cmd.exe with the ARM64 slice.
+              # /b keeps it headless, /wait propagates the exit code.
+              native_wrapper = f'start /b /wait /machine arm64 cmd.exe /c "{command}"'
+              
+              # We must use shell=True because 'start' is a cmd.exe built-in.
+              result = subprocess.run(
+                  native_wrapper,
+                  shell=True,
+                  capture_output=capture_output,
+                  text=True
+              )
+              
+              return result
+          
+          # 1. Verify the architecture transition
+          print("Checking active environment architectures...")
+          
+          # Check what Python thinks it is running on:
+          print(f"Python Process Pointer Width: {sys.hash_info.width}-bit (running emulated)")
+          
+          # Check what a normal subprocess call gets:
+          emulated_arch = subprocess.run("echo %PROCESSOR_ARCHITECTURE%", shell=True, capture_output=True, text=True).stdout.strip()
+          print(f"Standard subprocess reports: {emulated_arch}")
+          
+          # Check what our native wrapper gets:
+          native_result = run_native_arm64("echo %PROCESSOR_ARCHITECTURE%", capture_output=True)
+          native_arch = native_result.stdout.strip()
+          print(f"Native wrapper reports: {native_arch}")
+          
+          # 2. Run a real CI command and handle exit codes
+          ci_command = "powershell -Command [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture"
+          print(f"\nExecuting CI step: '{ci_command}'")
+          
+          ci_result = run_native_arm64(ci_command)
+          
+          if ci_result.returncode != 0:
+              print(f"CI Step Failed with exit code: {ci_result.returncode}")
+              sys.exit(ci_result.returncode)
+          else:
+              print("CI Step Succeeded!")
