@@ -8,16 +8,24 @@ jobs:
   run-tests:
     runs-on: windows-11-arm
     steps:
-      # Run the test using the win-64 Python environment
-      - name: Execute Native ARM64 Test from Emulated Process
+      - name: Setup Python
         shell: pwsh
         run: |
           curl -L -o micromamba.exe https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-win-64
           echo "Create Python env on x64"
           ./micromamba create -c conda-forge --root-prefix ./.micromamba-root -p ./test-env --platform win-64 python
+      # Run the test using the win-64 Python environment
+      - name: Execute Native ARM64 Test from Emulated Process
+        shell: pwsh
+        run: |
+          echo "CMD with no /machine reports:"
+          start /b cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
+          echo "CMD with /machine reports:"
+          start /b /machine arm64 cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
+
           echo "Python reports:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import platform; print('Python Platform:', platform.machine())"
           echo "Spawned with no /machine CMD reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; result = subprocess.run('start /b cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', shell=True, capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; result = subprocess.run('start /b cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
           echo "Spawned with /machine CMD reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; result = subprocess.run('start /b /machine arm64 cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', shell=True, capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; result = subprocess.run('start /b /machine arm64 cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
