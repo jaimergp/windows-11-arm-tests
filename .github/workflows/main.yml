@@ -20,7 +20,7 @@ jobs:
         run: |
           echo "ARM CMD:"
           start /b /wait /machine arm64 cmd.exe "echo ^%PROCESSOR_ARCHITECTURE^% > tempfile.txt"
-          timeout /t 5
+          ping 127.0.0.1 -n 6 > nul
           cat tempfile.txt
 
       - name: Setup Python
