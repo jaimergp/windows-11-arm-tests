@@ -64,20 +64,20 @@ jobs:
           import subprocess
           import sys
 
-          def run_native_arm64(command: str, capture_output: bool = False) -> subprocess.CompletedProcess:
+          def run_native_arm64(command: str, capture_output: bool = False, shell: str = "cmd") -> subprocess.CompletedProcess:
               """
               Launches a command inside a native ARM64 CMD environment
               from an emulated AMD64 Python process.
               """
               # Force execution of cmd.exe with the ARM64 slice.
               # /b keeps it headless, /wait propagates the exit code.
-              native_wrapper = f'start /b /wait /machine arm64 cmd.exe /c "{command}"'
+              native_wrapper = f'start /b /wait /machine arm64 {"cmd.exe /c" if shell == "cmd" else "powershell -Command"} "{command}"'
 
               # We must use shell=True because 'start' is a cmd.exe built-in.
               result = subprocess.run(
                   native_wrapper,
                   shell=True,
-                  capture_output=capture_output,
+                  capture_output=True,
                   text=True
               )
 
@@ -92,11 +92,11 @@ jobs:
           # Check what a normal subprocess call gets:
           emulated_arch = subprocess.run("echo %PROCESSOR_ARCHITECTURE%", shell=True, capture_output=True, text=True).stdout.strip()
           print(f"Standard CMD reports: {emulated_arch}")
-          emulated_arch = subprocess.run("powershell -Command $Env:PROCESSOR_ARCHITECTURE", shell=True, capture_output=True, text=True).stdout.strip()
+          emulated_arch = subprocess.run('powershell -Command "echo $Env:PROCESSOR_ARCHITECTURE"', shell=True, capture_output=True, text=True).stdout.strip()
           print(f"Standard powershell reports: {emulated_arch}")
 
           # Check what our native wrapper gets (escape variable to prevent parent CMD from processing that one)
-          native_result = run_native_arm64("powershell -Command $Env:PROCESSOR_ARCHITECTURE", capture_output=True)
+          native_result = run_native_arm64("echo $Env:PROCESSOR_ARCHITECTURE", capture_output=True, shell="powershell")
           native_arch = native_result.stdout.strip()
           print(f"Native wrapper reports: {native_arch}")
 
