@@ -17,5 +17,7 @@ jobs:
           ./micromamba create --root-prefix ./.micromamba-root -p ./test-env --platform win-64 python
           echo "Python reports:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import platform; print('Python Platform:', platform.machine())"
-          echo "Spawned CMD reports:"
+          echo "Spawned with no /machine CMD reports:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; result = subprocess.run('start /b cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', shell=True, capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
+          echo "Spawned with /machine CMD reports:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; result = subprocess.run('start /b /machine arm64 cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', shell=True, capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
