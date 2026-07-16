@@ -12,16 +12,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      # Set up micromamba and force it to configure a win-64 (x64) environment
-      - name: Set up Micromamba
-        uses: mamba-org/setup-micromamba@v3
-        with:
-          micromamba-version: "1.5.10-0"
-
       # Run the test using the win-64 Python environment
       - name: Execute Native ARM64 Test from Emulated Process
         shell: pwsh
         run: |
-          micromamba create -n test-env --platform win-64 python
-          micromamba run -n test-env python -c "import platform; print('Python Platform:', platform.machine())"
-          micromamba run -n test-env python -c "import subprocess; result = subprocess.run('start /b /machine arm64 cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', shell=True, capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
+          curl -sL -o micromamba.exe https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-win-64
+          ./micromamba create -p ./test-env --platform win-64 python
+          echo "Python reports:"
+          ./micromamba run -p ./test-env python -c "import platform; print('Python Platform:', platform.machine())"
+          echo "Spawned CMD reports:"
+          ./micromamba run -p ./test-env python -c "import subprocess; result = subprocess.run('start /b /machine arm64 cmd.exe /c echo %PROCESSOR_ARCHITECTURE%', shell=True, capture_output=True, text=True); print('Bypassed CMD Architecture:', result.stdout.strip())"
