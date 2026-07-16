@@ -37,7 +37,7 @@ jobs:
           echo "Naive CMD on arm64:"
           ./micromamba run --root-prefix ./.micromamba-root -p ./python-arm64 python -c "import subprocess as s; s.run(['cmd.exe', '/c', 'echo %PROCESSOR_ARCHITECTURE% %PROCESSOR_ARCHITEW6432%'])"
           echo "ARM CMD on amd64 via intermediate arm64 python:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'echo ^%PROCESSOR_ARCHITECTURE^%\ ^%PROCESSOR_ARCHITEW6432^%'])'])"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'echo ^%PROCESSOR_ARCHITECTURE^% ^%PROCESSOR_ARCHITEW6432^%\'])'])"
 
       - name: Query Powershell RuntimeInformation
         shell: pwsh
