@@ -102,7 +102,7 @@ jobs:
           ci_command = "powershell -Command [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture"
           print(f"\nExecuting CI step: '{ci_command}'")
 
-          ci_result = run_native_arm64(ci_command, capture_output=True))
+          ci_result = run_native_arm64(ci_command, capture_output=True)
           print("Powershell reports:", ci_result.stdout.strip())
           if ci_result.returncode != 0:
               print(f"CI Step Failed with exit code: {ci_result.returncode}")
