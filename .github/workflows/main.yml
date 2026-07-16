@@ -9,14 +9,14 @@ jobs:
     runs-on: windows-11-arm
     steps:
       - name: Native CMD
-        shell: cmd
+        shell: pwsh
         run: |
-          echo "Native CMD reports:"
-          echo %PROCESSOR_ARCHITECTURE%
-          echo "start with no /machine reports:"
-          start /b cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
-          echo "start with /machine reports:"
-          start /b /machine arm64 cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
+          echo "Native shell reports:"
+          echo $env:PROCESSOR_ARCHITECTURE
+          echo "Naive CMD:"
+          cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
+          echo "ARM CMD:"
+          C:\Windows\SysArm32\cmd.exe /c echo %PROCESSOR_ARCHITECTURE%
 
       - name: Setup Python
         shell: pwsh
@@ -29,8 +29,8 @@ jobs:
         shell: pwsh
         run: |
           echo "Python reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import platform; print(plaform.platform(), platform.machine())"
-          echo "Spawned with no /machine CMD reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; subprocess.run(['cmd.exe', '/C', 'start /b cmd.exe /c echo ^%PROCESSOR_ARCHITECTURE^%'])"
-          echo "Spawned with /machine CMD reports:"
-          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; subprocess.run(['cmd.exe', '/C', 'start /b /machine arm64 cmd.exe /c echo ^%PROCESSOR_ARCHITECTURE^%'])"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import platform; print(platform.platform(), platform.machine())"
+          echo "Naive CMD:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess; subprocess.run(['cmd.exe', 'echo %PROCESSOR_ARCHITECTURE%'])"
+          echo "ARM CMD:"
+          ./micromamba run --root-prefix ./.micromamba-root -p ./test-env python -c "import subprocess, os; subprocess.run([os.path.join(os.environ['SystemRoot'], 'SysArm32', 'cmd.exe'), '/C', 'echo %PROCESSOR_ARCHITECTURE%'])"
