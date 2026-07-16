@@ -56,8 +56,9 @@ jobs:
           ./micromamba run --root-prefix ./.micromamba-root -p ./python-amd64 python -c "import subprocess as s; s.run(['python-arm64/python.exe', '-c', 'import subprocess as s; s.run([\'cmd.exe\', \'/c\', \'powershell -Command [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture\'])'])"
 
       - name: Experiment with start
-        shell: ./python-amd64/python {0}
+        shell: bash -el {0}
         run: |
+          python - <<EOF
           import subprocess
           import sys
           
@@ -106,3 +107,4 @@ jobs:
               sys.exit(ci_result.returncode)
           else:
               print("CI Step Succeeded!")
+          EOF
