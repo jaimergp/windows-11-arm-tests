@@ -33,6 +33,7 @@ jobs:
           ./python-amd64/python - <<EOF
           import platform
           import sys
+          import sysconfig
           import os
 
           def get_native_windows_architecture() -> Literal["AMD64", "ARM64", "X86"] | None:
@@ -52,10 +53,15 @@ jobs:
           print(f"{os.environ.get('PROCESSOR_ARCHITECTURE')=}")
           print(f"{sys.platform=}")
           print(f"{sys.version=}")
+          print(f"{sys.winver=}")
+          print(f"{sys.implementation=}")
           print(f"{platform.platform()=}")
           print(f"{platform.architecture()=}")
           print(f"{platform.machine()=}")
           print(f"{platform.processor()=}")
+          print(f"{platform.python_compiler()=}")
+          print(f"{platform.uname()=}")
+          print(f"{sysconfig.get_platform()=}")
           print(f"{get_native_windows_architecture()=}")
           EOF
       - name: Python values (arm64)
@@ -64,6 +70,7 @@ jobs:
           ./python-arm64/python - <<EOF
           import platform
           import sys
+          import sysconfig
           import os
 
           def get_native_windows_architecture() -> Literal["AMD64", "ARM64", "X86"] | None:
@@ -83,10 +90,15 @@ jobs:
           print(f"{os.environ.get('PROCESSOR_ARCHITECTURE')=}")
           print(f"{sys.platform=}")
           print(f"{sys.version=}")
+          print(f"{sys.winver=}")
+          print(f"{sys.implementation=}")
           print(f"{platform.platform()=}")
           print(f"{platform.architecture()=}")
           print(f"{platform.machine()=}")
           print(f"{platform.processor()=}")
+          print(f"{platform.python_compiler()=}")
+          print(f"{platform.uname()=}")
+          print(f"{sysconfig.get_platform()=}")
           print(f"{get_native_windows_architecture()=}")
           EOF
       - name: Query PROCESSOR_ARCHITECTURE and PROCESSOR_ARCHITEW6432
