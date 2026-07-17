@@ -27,6 +27,68 @@ jobs:
           echo "Create Python env for arm64"
           ./micromamba create -c conda-forge --root-prefix ./.micromamba-root -p ./python-arm64 --platform win-arm64 python
 
+      - name: Python values (amd64)
+        shell: bash -el {0}
+        run: |
+          ./python-amd64/python - <<EOF
+          import platform
+          import sys
+          import os
+
+          def get_native_windows_architecture() -> Literal["AMD64", "ARM64", "X86"] | None:
+              import winreg
+
+              registry_path = r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+
+              try:
+                  with winreg.OpenKey(
+                      winreg.HKEY_LOCAL_MACHINE, registry_path, 0, winreg.KEY_READ
+                  ) as key:
+                      native_arch, _ = winreg.QueryValueEx(key, "PROCESSOR_ARCHITECTURE")
+                      return native_arch.upper()
+              except Exception as e:
+                  return None
+          print(f"{os.environ.get('PROCESSOR_ARCHITEW6432')=}")
+          print(f"{os.environ.get('PROCESSOR_ARCHITECTURE')=}")
+          print(f"{sys.platform=}")
+          print(f"{sys.version=}")
+          print(f"{platform.platform()=}")
+          print(f"{platform.architecture()=}")
+          print(f"{platform.machine()=}")
+          print(f"{platform.processor()=}")
+          print(f"{get_native_windows_architecture()=}")
+          EOF
+      - name: Python values (arm64)
+        shell: bash -el {0}
+        run: |
+          ./python-arm64/python - <<EOF
+          import platform
+          import sys
+          import os
+
+          def get_native_windows_architecture() -> Literal["AMD64", "ARM64", "X86"] | None:
+              import winreg
+
+              registry_path = r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+
+              try:
+                  with winreg.OpenKey(
+                      winreg.HKEY_LOCAL_MACHINE, registry_path, 0, winreg.KEY_READ
+                  ) as key:
+                      native_arch, _ = winreg.QueryValueEx(key, "PROCESSOR_ARCHITECTURE")
+                      return native_arch.upper()
+              except Exception as e:
+                  return None
+          print(f"{os.environ.get('PROCESSOR_ARCHITEW6432')=}")
+          print(f"{os.environ.get('PROCESSOR_ARCHITECTURE')=}")
+          print(f"{sys.platform=}")
+          print(f"{sys.version=}")
+          print(f"{platform.platform()=}")
+          print(f"{platform.architecture()=}")
+          print(f"{platform.machine()=}")
+          print(f"{platform.processor()=}")
+          print(f"{get_native_windows_architecture()=}")
+          EOF
       - name: Query PROCESSOR_ARCHITECTURE and PROCESSOR_ARCHITEW6432
         shell: pwsh
         run: |
